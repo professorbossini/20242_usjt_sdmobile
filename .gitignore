@@ -1,3 +1,4 @@
 node_modules
 .env# Environment configuration
 **/.env
+.env
