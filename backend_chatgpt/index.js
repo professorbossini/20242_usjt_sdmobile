@@ -1,37 +1,20 @@
 require('dotenv').config()
-// const app = require('express')()
 const express = require('express')
-const { OpenAI } = require('openai')
+const { GoogleGenerativeAI } = require('@google/generative-ai')
 const app = express()
 //função middleware
 app.use(express.json())
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY
-console.log(OPENAI_API_KEY)
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 
-//POST /pergunte-ao-chatgpt () => {}
-app.post('/pergunte-ao-chatgpt', async (req, res) => {
-  const openai = new OpenAI(OPENAI_API_KEY)
-  const prompt = req.body.prompt
-  const model = 'gpt-4o-mini'
-  const role = 'user'
-  const max_tokens = 50
-  const completion = await openai.chat.completions.create({
-    messages: [{role: role, content: prompt}],
-    model: model,
-    max_tokens: max_tokens
+app.post('/pergunte-ao-gemini', async (req, res) => {
+  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-1.5-flash'
   })
-  res.json({completion: completion.choices[0].message.content})
+  const { prompt } = req.body
+  const result = await model.generateContent(prompt)
+  res.json({completion: result.response.text()})
 })
-
-//defina esse endpoint, ele devolve esse json: {msg: "oi"}
-//e mais ainda, acione-o via navegador
-//localhost:3000/oi
-//GET /oi?nome=Ana
-//localhost:3000/oi?nome=Ana
-app.get('/oi', (req, res) => {
-  res.json({msg: `Oi, ${req.query.nome}`})
-})
-
 
 app.listen(3000, () => {
   console.log('Subiu')
